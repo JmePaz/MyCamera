@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        >
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reqPermissionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Request Camera Permission"
+            app:cornerRadius="10dp"
+            app:backgroundTint="#4788DD"/>
+    </FrameLayout>
+   <LinearLayout
+       android:id="@+id/cameraControls"
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       android:orientation="horizontal"
+       android:layout_weight="0.12"
+       android:gravity="center">
+       <ImageButton
+           android:id="@+id/camSwtichBtn"
+            android:layout_height="80dp"
+           android:layout_width="80dp"
+           android:src="@drawable/baseline_cameraswitch_24"
+           android:layout_gravity="center"
+           android:contentDescription="Camera Switch"/>
+       <ImageButton
+           android:id="@+id/camCaptureBtn"
+           android:layout_height="80dp"
+           android:layout_width="80dp"
+           android:src="@drawable/baseline_camera_24"
+           android:layout_gravity="center"
+           android:contentDescription="Camera Capture"/>
+       <ImageButton
+           android:id="@+id/flashControlBtn"
+           android:layout_height="80dp"
+           android:layout_width="80dp"
+           android:src="@drawable/baseline_flash_off_24"
+           android:layout_gravity="center"
+           android:contentDescription="Flash Toggle"/>
+   </LinearLayout>
+</LinearLayout>
