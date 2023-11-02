@@ -13,12 +13,14 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.util.Log
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
 import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -31,8 +33,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import com.google.android.material.button.MaterialButton
 import com.google.common.util.concurrent.ListenableFuture
+import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileWriter
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,27 +94,53 @@ class MainActivity : AppCompatActivity() {
         }
 
         val file = File(applicationContext.filesDir, "current_img")
-        file.delete().apply {
-            val metadata = ImageCapture.Metadata()
-            metadata.isReversedHorizontal = true
-            val outputFileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
-
-            imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(this@MainActivity),
-                object: ImageCapture.OnImageSavedCallback{
-                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        val intent = Intent(this@MainActivity, ImageCapturedAct::class.java)
-                        startActivity(intent)
+        imageCapture.takePicture(ActivityCompat.getMainExecutor(this)
+            , object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    //writing file
+                    val writer = file.outputStream()
+                    try{
+                        val img = convertBitMapToBytesArray(image.toBitmap(), lensFacing == LENS_FACING_FRONT)
+                        writer.write(img)
+                    }
+                    catch (e:Exception){
+                        Toast.makeText(applicationContext, "Error ${e.message}",Toast.LENGTH_SHORT ).show()
+                        return
+                    }
+                    finally {
+                        image.close()
+                        writer.close()
                     }
 
-                    override fun onError(exception: ImageCaptureException) {
-                        Toast.makeText(applicationContext, exception.message, Toast.LENGTH_LONG).show()
-                    }
+                    //transitioning to next activity
+                    val intent = Intent(this@MainActivity, ImageCapturedAct::class.java)
+                    startActivity(intent)
+                }
 
-                })
-        }
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                }
+            })
 
     }
 
+    private fun convertBitMapToBytesArray(bitmap: Bitmap, needFilpX:Boolean = false):ByteArray{
+
+        val stream = ByteArrayOutputStream()
+        bitmap.flipX(needFilpX).compress(Bitmap.CompressFormat.JPEG, 90, stream)
+        return stream.toByteArray()
+    }
+
+
+    private fun Bitmap.flipX(enabled:Boolean = true):Bitmap{
+        if(!enabled){
+            return this
+        }
+
+        val matrix = Matrix()
+        matrix.postScale(-1f,1f, this.width/2f, this.height/2f)
+        return Bitmap.createBitmap( this, 0,0, this.width, this.height, matrix,true)
+    }
 
 
     @SuppressLint("UseCompatLoadingForDrawables")
