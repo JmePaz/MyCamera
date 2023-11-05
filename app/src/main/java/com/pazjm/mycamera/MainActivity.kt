@@ -97,10 +97,12 @@ class MainActivity : AppCompatActivity() {
         imageCapture.takePicture(ActivityCompat.getMainExecutor(this)
             , object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
+
+                    val rotation = image.imageInfo.rotationDegrees
                     //writing file
                     val writer = file.outputStream()
                     try{
-                        val img = convertBitMapToBytesArray(image.toBitmap(), lensFacing == LENS_FACING_FRONT)
+                        val img = convertBitMapToBytesArray(image.toBitmap().rotate(rotation), lensFacing == LENS_FACING_FRONT)
                         writer.write(img)
                     }
                     catch (e:Exception){
@@ -142,6 +144,12 @@ class MainActivity : AppCompatActivity() {
         return Bitmap.createBitmap( this, 0,0, this.width, this.height, matrix,true)
     }
 
+    private fun Bitmap.rotate(rotDegress: Int): Bitmap{
+        val matrix = Matrix().apply {
+            this.postRotate(rotDegress.toFloat())
+        }
+        return Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
+    }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun flashToggle(enabled: Boolean){

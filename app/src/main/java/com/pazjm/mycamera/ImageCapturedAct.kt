@@ -70,7 +70,7 @@ class ImageCapturedAct : AppCompatActivity() {
     private fun saveImgByMediaStore(){
         val values = ContentValues()
         values.put(MediaStore.Images.Media.DISPLAY_NAME, "${getCurrDateTime()}.jpg")
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
         val uri =
             contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: return
         val byteArray = ByteArrayOutputStream()
@@ -90,12 +90,12 @@ class ImageCapturedAct : AppCompatActivity() {
             val folder = File(Environment.getExternalStorageDirectory(), "mycamera")
             if(!folder.exists())folder.mkdirs()
 
-            val file = File(folder,"${getCurrDateTime()}.png" )
+            val file = File(folder,"${getCurrDateTime()}.jpg" )
 
             file.outputStream().use {
                 val byteArray = ByteArrayOutputStream()
                 capturedPreview.drawable.toBitmap()
-                    .compress(Bitmap.CompressFormat.PNG, 90, byteArray)
+                    .compress(Bitmap.CompressFormat.JPEG, 20, byteArray)
                 it.write(byteArray.toByteArray())
             }.apply {
                 Toast.makeText(baseContext, "Saved at ${file.absolutePath}", Toast.LENGTH_LONG).show()
